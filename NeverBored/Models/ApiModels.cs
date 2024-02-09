@@ -13,6 +13,9 @@ namespace NeverBored.Models
         [JsonProperty("link")]
         public string Link { get; set; }
 
+        [JsonProperty("participants")]
+        public int? Participants { get; set; }
+
         [JsonProperty("key")]
         public string Key { get; set; }
     }
