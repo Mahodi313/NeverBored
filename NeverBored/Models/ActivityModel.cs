@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata;
 
 namespace NeverBored.Models
 {
@@ -9,6 +10,6 @@ namespace NeverBored.Models
         public string Name { get; set; } = null!;
         public string? Type { get; set; }
         public int Participants { get; set; }
-        public string? Link { get; set; }       
+        public string? Link { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NeverBored.Database;
+using NeverBored.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ builder.Services.AddRazorPages();
 
 var connectionString = builder.Configuration.GetConnectionString("DbConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IActivity, ActivityRepository>();
 
 var app = builder.Build();
 
