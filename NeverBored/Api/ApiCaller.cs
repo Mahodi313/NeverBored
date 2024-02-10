@@ -3,29 +3,27 @@ using NeverBored.Models;
 using NeverBored.Services;
 using Newtonsoft.Json;
 
-namespace NeverBored.Api
+public class ApiCaller
 {
-    public class ApiCaller
+    private readonly AppDbContext _dbContext;
+    private readonly HttpClient _httpClient;
+
+    public ApiCaller(AppDbContext dbContext, HttpClient httpClient)
     {
-        private readonly AppDbContext _dbcontext;
-        public HttpClient Client { get; set; }
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient.BaseAddress = new Uri("https://www.boredapi.com/");
+    }
 
-        public ApiCaller(AppDbContext dbContext)
+    public async Task<List<Root>> MakeMultipleCalls(int numberOfCalls)
+    {
+        List<Root> results = new List<Root>();
+
+        try
         {
-            _dbcontext = dbContext;
-
-            Client = new HttpClient();
-            Client.BaseAddress = new Uri("https://www.boredapi.com/");
-        }
-
-        public async Task<Root> MakeCall()
-        {
-            try
+            for (int i = 0; i < numberOfCalls; i++)
             {
-                string url = "api/activity/";
-                ActivityRepository activityRepo = new(_dbcontext);
-
-                HttpResponseMessage response = await Client.GetAsync(url);
+                HttpResponseMessage response = await _httpClient.GetAsync("api/activity/");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -34,11 +32,12 @@ namespace NeverBored.Api
 
                     if (result != null)
                     {
+                        ActivityRepository activityRepo = new(_dbContext);
                         ActivityModel? existingActivity = await activityRepo.GetByName(result.Activity);
 
                         if (existingActivity == null)
                         {
-                            ActivityModel newActivity = new()
+                            ActivityModel newActivity = new ActivityModel
                             {
                                 Name = result.Activity,
                                 Type = result.Type,
@@ -46,20 +45,24 @@ namespace NeverBored.Api
                                 Link = result.Link
                             };
 
-                            await activityRepo.Add(newActivity);
+                            _dbContext.Activites.Add(newActivity);
+                            await activityRepo.SaveChanges();
                         }
 
-                        await activityRepo.SaveChanges();
-
-                        return result;
+                        results.Add(result);
                     }
                 }
-                throw new HttpRequestException($"Failed to fetch activity data from URL: {url}");
+                else
+                {
+                    throw new HttpRequestException($"Failed to fetch activity data from URL: {_httpClient.BaseAddress}/api/activity/");
+                }
             }
-            catch (Exception ex)
-            {
-                throw new HttpRequestException($"An error occured while fetching activity data: {ex.Message}");
-            }
+
+            return results;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"An error occurred while fetching activity data: {ex.Message}", ex);
         }
     }
 }

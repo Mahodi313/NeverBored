@@ -12,7 +12,13 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
 
 builder.Services.AddScoped<IActivity, ActivityRepository>();
 
+builder.Services.AddSingleton<HttpClient>();
+
+builder.Services.AddScoped<ApiCaller>();
+
 var app = builder.Build();
+
+InitializeDatabase(app.Services).Wait();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -32,3 +38,18 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+static async Task InitializeDatabase(IServiceProvider services)
+{
+    using (var scope = services.CreateScope())
+    {
+        var serviceProvider = scope.ServiceProvider;
+        var dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+        var apiCaller = serviceProvider.GetRequiredService<ApiCaller>();
+
+        if (!dbContext.Activites.Any())
+        {
+            await apiCaller.MakeMultipleCalls(20);
+        }
+    }
+}

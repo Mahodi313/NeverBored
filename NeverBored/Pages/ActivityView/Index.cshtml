@@ -1,0 +1,37 @@
+﻿@page
+@model NeverBored.Pages.ActivityView.IndexModel
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <a href="/ActivityView/FavoriteView" class="btn btn-primary">View Favorite Activities</a>
+    </div>
+
+    <h1 class="text-center">Activities</h1>
+    <hr />
+
+    @if (Model.Activites != null && Model.Activites.Any())
+    {
+        <div class="row">
+            @foreach (var activity in Model.Activites)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body" style="display: flex; flex-direction: column;">
+                            <h5 class="card-title">@activity.Name</h5>
+                            <p class="card-text">Type: @activity.Type</p>
+                            <p class="card-text">Amount of participants: @activity.Participants</p>
+                            <div class="align-items-center">
+                                <a href="@activity.Link" class="btn btn-primary mb-2">Learn More</a>
+                                <button type="button" class="btn btn-success mb-2">Add to Favorites</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center">No activities found.</p>
+    }
+</div>
