@@ -22,7 +22,10 @@
                             <p class="card-text">Amount of participants: @activity.Participants</p>
                             <div class="align-items-center">
                                 <a href="@activity.Link" class="btn btn-primary mb-2">Learn More</a>
-                                <button type="button" class="btn btn-success mb-2">Add to Favorites</button>
+                                <form method="post">
+                                    <input type="hidden" name="id" value="@activity.Id" />
+                                    <button type="submit" class="btn btn-success mb-2">Add to Favorites</button>
+                                </form>
                             </div>
                         </div>
                     </div>
